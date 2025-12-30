@@ -354,18 +354,76 @@ class Enemy {
   }
 }
 
-const enemy1 = new Enemy();
+let enemySpawnInterval = 180;
+let maxEnemies = 1;
+function updateEnemyDifficulty() {
 
-function handleEnemies() {
-  enemy1.update();
-  enemy1.draw();
-  //collision detection
-  if (enemy1.distance < enemy1.radius + player.radius) {
-    gameOver = true;
-    enemy1.x = canvas.width + 200;
-    enemy1.y = Math.random() * (canvas.height - 150) + 90;
+  // ---- SPEED FIRST ----
+  if (score >= 40) enemySpeed = 6;
+  else if (score >= 30) enemySpeed = 5;
+  else if (score >= 20) enemySpeed = 4;
+  else if (score >= 10) enemySpeed = 3;
+  else enemySpeed = 2;
+
+  // ---- COUNT AFTER ----
+  if (score >= 80) {
+    maxEnemies = 5;
+    enemySpawnInterval = 70;
+  } else if (score >= 60) {
+    maxEnemies = 4;
+    enemySpawnInterval = 90;
+  } else if (score >= 40) {
+    maxEnemies = 3;
+    enemySpawnInterval = 120;
+  } else if (score >= 20) {
+    maxEnemies = 2;
+    enemySpawnInterval = 150;
+  } else {
+    maxEnemies = 1;
+    enemySpawnInterval = 180;
   }
 }
+const enemyArray = [];
+let enemySpeed = 2;
+
+function handleEnemies() {
+
+  updateEnemyDifficulty();
+
+  // Spawn enemies
+  if (
+    gameFrame % enemySpawnInterval === 0 &&
+    enemyArray.length < maxEnemies
+  ) {
+    const enemy = new Enemy();
+    enemy.speed = enemySpeed;
+    enemyArray.push(enemy);
+  }
+
+  for (let i = 0; i < enemyArray.length; i++) {
+    const enemy = enemyArray[i];
+    enemy.speed = enemySpeed;
+
+    enemy.update();
+    enemy.draw();
+
+    // Collision detection
+    const dx = enemy.x - player.x;
+    const dy = enemy.y - player.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < enemy.radius + player.radius) {
+      gameOver = true;
+    }
+
+    // Remove off screen
+    if (enemy.x < -enemy.radius * 2) {
+      enemyArray.splice(i, 1);
+      i--;
+    }
+  }
+}
+
 //-----------------------------------------------------------------------------------------------
 //7.Animation loop
 const player = new Player();
