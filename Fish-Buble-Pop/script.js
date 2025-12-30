@@ -48,6 +48,15 @@ canvas.addEventListener("touchend", function(event){
 
 //----------------------------------------------------------------------------------------
 //3.Player
+const playerleftImage= new Image();
+playerleftImage.src= "data/fish_left_flip.png" ;
+
+const playerrightImage= new Image();
+playerrightImage.src= "data/fish_right_flip.png" ;
+
+
+
+
 class Player{
     constructor(){
         this.x=canvas.width/2 ;
@@ -67,7 +76,7 @@ class Player{
     update(){
         const dx = this.x - mouse.x;
         const dy = this.y - mouse.y;
-
+        this.angle= Math.atan2(dy,dx);
         if (mouse.x != this.x){
             this.x -= dx/20 ;
         }
@@ -91,6 +100,20 @@ class Player{
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
         ctx.fill();
         ctx.closePath();
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        
+        
+        if (this.x <= mouse.x){
+        ctx.drawImage(playerrightImage, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight, - 60, - 45, this.spriteWidth/4, this.spriteHeight/4);
+        }
+        else
+        {
+        ctx.drawImage(playerleftImage, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight, - 60, - 45, this.spriteWidth/4, this.spriteHeight/4);
+        }
+        ctx.restore();
     }
 }
 
@@ -156,9 +179,9 @@ function handleBubbles() {
             i--;
            
         }
-
+       
         // collision detection
-        if (bubble.distance < bubble.radius + player.radius) {
+        if (bubbleArray[i] && bubble.distance < bubble.radius + player.radius) {
             score++;
             bubbleArray.splice(i, 1);
             if (bubble.sound=="sound1")
